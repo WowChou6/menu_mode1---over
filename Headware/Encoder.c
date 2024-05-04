@@ -2,7 +2,7 @@
 
 
 float Velocity_KP = 1500,Velocity_KI = 50;
-float TKd = 25000,TKp = 2000;
+float TKd = 22000,TKp = 1000;
 
 void Encoder_Init(void)
 {

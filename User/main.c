@@ -21,6 +21,8 @@ int stage = 3;
 float Pitch,Roll,Yaw;
 int mode2_dest;
 int mode1_dest = 0;
+int finalYaw = 999;
+int initialYaw = 999;
 
 int menu2 = 0;     //定义当前模式
 
@@ -64,6 +66,62 @@ while(1)
 }
 
 
+void PIDSpeed(int current_speed) {
+	set_L_pwm(Velocity_L(L_vel, current_speed - xunji_different_vel));
+	set_R_pwm(Velocity_R(R_vel, current_speed + xunji_different_vel));
+}
+
+int moveUntilCross(int current_speed) {
+	PIDSpeed(current_speed);
+	if (pos == 100)
+	{ 
+		L_pos = R_pos = 0;
+		return 1;
+	} return 0;
+}
+
+int moveUntilCrossAndMinDistance(int current_speed, int min_detect_distance) {
+	PIDSpeed(current_speed);
+	if ((L_pos + R_pos) / 2 > min_detect_distance && pos == 100)
+	{ 
+		L_pos = R_pos = 0;
+		return 1;
+	} return 0;
+}
+
+int moveOverflow(int overflow_distance){
+	set_L_pwm(Velocity_L(L_vel, base_vel));
+	set_R_pwm(Velocity_R(R_vel, base_vel));
+	if ((L_pos + R_pos) / 2 > overflow_distance)
+	{
+		L_pos = R_pos = 0;
+		brake();
+		return 1;
+	} return 0;
+}
+
+
+
+int turn(int routate) {
+	if(finalYaw == 999){
+		initialYaw = Yaw;
+		finalYaw = Yaw + routate;
+	}
+	int currentYaw = Yaw - initialYaw;
+	set_L_pwm(-MTurn(currentYaw,finalYaw));
+	set_R_pwm(MTurn(currentYaw,finalYaw));
+	
+	if (abs(currentYaw) >= abs(routate)-5) {
+		stage_count = 0;
+		L_pos = R_pos = 0;
+		initialYaw = 999;
+		finalYaw = 999;
+		brake();
+		return 1;
+	}
+	return 0;
+}
+
 //    menu2 = menu1();
 //	if(menu2 == 1) mode1();
 //	if(menu2 == 2)  mode2_dest = mode2();
@@ -96,45 +154,30 @@ void TIM1_UP_IRQHandler()
 			       stage = 1;
 			      break;
 			
-			case 1:  //干线直行 直到 传感器检测到交叉口
-			// asddsa
-				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
-				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
-			
-				if ((L_pos + R_pos) / 2 > 2500 && pos == 100)
-				{ 
-					L_pos = R_pos = 0;
+			case 1:  //到左路口
+				if(moveUntilCross(20)){
 					stage = 2;
-				} break;
+				}
+				break;
 				
 			case 2:  //干线直行 直到 轮子走到交叉口
-				set_L_pwm(Velocity_L(L_vel, base_vel));
-				set_R_pwm(Velocity_R(R_vel, base_vel));
-				if ((L_pos + R_pos) / 2 > 100)
-				{
-					L_pos = R_pos = 0;
-					brake();
+				if(moveOverflow(100)){
 					stage = 3;
-				} break;
-				
+				}
+				break;
 				
 			case 3:  //左转直角
 				stage_count++;
 				if (stage_count == 10) L_pos = R_pos = 0;  //等待0.1s再开始转向
+
+
 				if (stage_count > 10)
 				{
-						set_L_pwm(-MTurn(Yaw,90));
-						set_R_pwm(MTurn(Yaw,90));
-		 
-   
+					if(turn(-90)){
+						stage = 200;
+					}
 		     	}           
-				if (Yaw >= 90) 
-				{
-					stage_count = 0;
-					L_pos = R_pos = 0;
-					brake();
-					stage = 200;
-				}
+				
         
 				break;
 				
