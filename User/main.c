@@ -23,6 +23,7 @@ int mode2_dest;
 int mode1_dest = 0;
 int finalYaw = 999;
 int initialYaw = 999;
+int turnFinishFlag = 0;
 
 int menu2 = 0;     //���嵱ǰģʽ
 
@@ -107,21 +108,30 @@ int turn(int routate) {
 		initialYaw = Yaw;
 		finalYaw = Yaw + routate;
 	}
+
 	int currentYaw = Yaw - initialYaw;
-	set_L_pwm(-MTurn(currentYaw,finalYaw));
-	set_R_pwm(MTurn(currentYaw,finalYaw));
+
+	if (turnFinishFlag == 0)
+	{
+		set_L_pwm(-MTurn(currentYaw,finalYaw));
+		set_R_pwm(MTurn(currentYaw,finalYaw));
+	}
+	
 	
 	if (abs(MTurn(currentYaw,finalYaw))  <= 5000) {
-   if(MTurn(currentYaw,finalYaw) > 0)
-   {
-      set_L_pwm(Velocity_L(L_vel,-5));
-	  set_R_pwm(Velocity_R(R_vel, 5));	
-   }
-   else {
-      set_L_pwm(Velocity_L(L_vel, 5));
-	  set_R_pwm(Velocity_R(R_vel, -5 ));
+		turnFinishFlag = 1;
+	}
 
-   }
+	if(turnFinishFlag)
+	{
+		set_L_pwm(Velocity_L(L_vel,-5));
+		set_R_pwm(Velocity_R(R_vel, 5));	
+	}
+	else {
+		set_L_pwm(Velocity_L(L_vel, 5));
+		set_R_pwm(Velocity_R(R_vel, -5));
+
+	}
 
    if(huidu_data == 0x80 || huidu_data == 0x20) //01000 00010
    {
@@ -135,7 +145,6 @@ int turn(int routate) {
 	return 0;
 }
 
-}
 
 
 //    menu2 = menu1();
