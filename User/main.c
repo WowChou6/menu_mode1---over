@@ -97,6 +97,7 @@ void TIM1_UP_IRQHandler()
 			      break;
 			
 			case 1:  //干线直行 直到 传感器检测到交叉口
+			// asddsa
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 			
