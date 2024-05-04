@@ -11,11 +11,11 @@
 
 //Device header
 
-int L_pos=0,R_pos=0,L_vel,R_vel;  //×óÓÒÂÖÎ»ÒÆ ËÙ¶È
-int xunji_different_vel = 0;      //Ñ­¼£×óÓÒÂÖËÙ¶È²î
-int base_vel = 20;                //»ù´¡ËÙ¶È'
-int pos;                          //Ð¡³µÆ«ÀëÖÐÐÄÏßÎ»ÒÆ
-int huidu_data;                   //»Ò¶È´«¸ÐÆ÷Êä³ö±àÂë
+int L_pos=0,R_pos=0,L_vel,R_vel;  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ ï¿½Ù¶ï¿½
+int xunji_different_vel = 0;      //Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È²ï¿½
+int base_vel = 20;                //ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½'
+int pos;                          //Ð¡ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+int huidu_data;                   //ï¿½Ò¶È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int stage_count;                  
 int stage = 3;    
 float Pitch,Roll,Yaw;
@@ -24,7 +24,7 @@ int mode1_dest = 0;
 int finalYaw = 999;
 int initialYaw = 999;
 
-int menu2 = 0;     //¶¨Òåµ±Ç°Ä£Ê½
+int menu2 = 0;     //ï¿½ï¿½ï¿½åµ±Ç°Ä£Ê½
 
 int main(void){	
     Speaker_Init();
@@ -39,11 +39,11 @@ while(1)
 {  
 ////	
 //       MPU6050_DMP_Get_Data(&Pitch,&Roll,&Yaw);
-////        L_vel = Encoder1_Get();  //¶ÁÈ¡µ¥Î»Ê±¼äÓÒÂÖ±àÂëÆ÷ÊýÖµ£¬¶ÁÍêÇåÁã£¨¼´ÓÒÂÖËÙ¶È£©
+////        L_vel = Encoder1_Get();  //ï¿½ï¿½È¡ï¿½ï¿½Î»Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½
 ////		R_vel = Encoder2_Get();             //
 
-//       huidu_data = huidu_detect();  //µÃµ½»Ò¶È±àÂëÊý¾Ý   
-//      pos = xunji(huidu_data);      //µÃµ½Ð¡³µÎ»ÖÃÆ«ÒÆÁ¿
+//       huidu_data = huidu_detect();  //ï¿½Ãµï¿½ï¿½Ò¶È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   
+//      pos = xunji(huidu_data);      //ï¿½Ãµï¿½Ð¡ï¿½ï¿½Î»ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
 //////////////	
 
 ////////	   OLED_ShowSignedNum(3,1,Yaw,5);
@@ -111,7 +111,20 @@ int turn(int routate) {
 	set_L_pwm(-MTurn(currentYaw,finalYaw));
 	set_R_pwm(MTurn(currentYaw,finalYaw));
 	
-	if (abs(currentYaw) >= abs(routate)-5) {
+	if (abs(MTurn(currentYaw,finalYaw)) <= 10000) {
+   if(MTurn(currentYaw,finalYaw) > 0)
+   {
+      set_L_pwm(Velocity_L(L_vel,-base_vel));
+	  set_R_pwm(Velocity_R(R_vel, base_vel));	
+   }
+   else {
+      set_L_pwm(Velocity_L(L_vel, base_vel));
+	  set_R_pwm(Velocity_R(R_vel, -base_vel));
+
+   }
+
+   if(huidu_data == 0x80 || huidu_data == 0x20) //01000 00010
+   {
 		stage_count = 0;
 		L_pos = R_pos = 0;
 		initialYaw = 999;
@@ -121,6 +134,9 @@ int turn(int routate) {
 	}
 	return 0;
 }
+
+}
+
 
 //    menu2 = menu1();
 //	if(menu2 == 1) mode1();
@@ -133,16 +149,16 @@ void TIM1_UP_IRQHandler()
    {
 	   TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 	   
-        L_vel = Encoder1_Get();  //¶ÁÈ¡µ¥Î»Ê±¼äÓÒÂÖ±àÂëÆ÷ÊýÖµ£¬¶ÁÍêÇåÁã£¨¼´×óÂÖËÙ¶È£©
+        L_vel = Encoder1_Get();  //ï¿½ï¿½È¡ï¿½ï¿½Î»Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½
 		R_vel = Encoder2_Get();  //
-		R_pos += R_vel;               //ÓÒÂÖËÙ¶ÈÀÛ¼ÓÎªÎ»ÒÆ
+		R_pos += R_vel;               //ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½Û¼ï¿½ÎªÎ»ï¿½ï¿½
 		L_pos += L_vel;               //
         
 	    
 	    MPU6050_DMP_Get_Data(&Pitch,&Roll,&Yaw);
-        huidu_data = huidu_detect();  //µÃµ½»Ò¶È±àÂëÊý¾Ý   
-        pos = xunji(huidu_data);      //µÃµ½Ð¡³µÎ»ÖÃÆ«ÒÆÁ¿
-     if (pos != 100) xunji_different_vel = pos;  //pos=100´ú±íÓöµ½½»²æ¿Ú£¬²»Îª100ÔòµÃµ½Ñ­¼£µÄ×óÓÒÂÖËÙ¶È²î
+        huidu_data = huidu_detect();  //ï¿½Ãµï¿½ï¿½Ò¶È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   
+        pos = xunji(huidu_data);      //ï¿½Ãµï¿½Ð¡ï¿½ï¿½Î»ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
+     if (pos != 100) xunji_different_vel = pos;  //pos=100ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½Îª100ï¿½ï¿½Ãµï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È²ï¿½
         //OLED_ShowSignedNum(1,1,Yaw,5);
 //  //  if(menu2 == 0)
 //	//{
@@ -154,21 +170,21 @@ void TIM1_UP_IRQHandler()
 			       stage = 1;
 			      break;
 			
-			case 1:  //µ½×óÂ·¿Ú
+			case 1:  //ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
 				if(moveUntilCross(20)){
 					stage = 2;
 				}
 				break;
 				
-			case 2:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ÂÖ×Ó×ßµ½½»²æ¿Ú
+			case 2:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				if(moveOverflow(100)){
 					stage = 3;
 				}
 				break;
 				
-			case 3:  //×ó×ªÖ±½Ç
+			case 3:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
 				stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 
 
 				if (stage_count > 10)
@@ -181,10 +197,10 @@ void TIM1_UP_IRQHandler()
         
 				break;
 				
-			case 4:  //¸ÉÏßÖ±ÐÐ ´«¸ÐÆ÷¼ì²âµ½½»²æ¿Ú
+			case 4:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
-				if ((L_pos + R_pos) / 2 > 700)  //µ½´ï½»²æ¿Ú
+				if ((L_pos + R_pos) / 2 > 700)  //ï¿½ï¿½ï¿½ï½»ï¿½ï¿½ï¿½
 				{
 					L_pos = R_pos = 0;
 					stage = 5;
@@ -192,7 +208,7 @@ void TIM1_UP_IRQHandler()
 					
 				} break;
 				
-		   	case 5:  //¸ÉÏßÖ±ÐÐ ÂÖ×Ó×ßµ½½»²æ¿Ú
+		   	case 5:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 100)
@@ -202,9 +218,9 @@ void TIM1_UP_IRQHandler()
 					stage = 6;
 				} break;
 				
-			case 6:  //ÓÒ×ªÖ±½Ç
+			case 6:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
 				stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 				if (stage_count > 10)
 				{
 						set_L_pwm(-MTurn(Yaw,0));
@@ -219,7 +235,7 @@ void TIM1_UP_IRQHandler()
 					stage = 7;
 				} break;
 				
-			case 7:   //¸ÉÏßÖ±ÐÐ Ö±µ½ ´«¸ÐÆ÷¼ì²âµ½½»²æ¿Ú
+			case 7:   //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 3500 && pos == 100)
@@ -230,7 +246,7 @@ void TIM1_UP_IRQHandler()
 					stage = 9;
 				}break;
 //				
-			case 8:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ÂÖ×Ó×ßµ½½»²æ¿Ú
+			case 8:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 50)
@@ -245,9 +261,9 @@ void TIM1_UP_IRQHandler()
 					
 				} break;
 //				
-			case 9:  //×ó×ªÖ±½Ç
+			case 9:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
 				stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 				if (stage_count > 10)
 				{
 						set_L_pwm(-MTurn(Yaw,85));
@@ -263,7 +279,7 @@ void TIM1_UP_IRQHandler()
 				} break;
 				
 				
-				case -1:  //×ó×ªÖ±½Ç
+				case -1:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
 				 
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
@@ -275,7 +291,7 @@ void TIM1_UP_IRQHandler()
 				
 				} break;;
 				
-			case 10:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ´«¸ÐÆ÷¼ì²âµ½½»²æ¿Ú
+			case 10:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 2500 && pos == 100)  /**/
@@ -285,7 +301,7 @@ void TIM1_UP_IRQHandler()
 					stage = 12;
 				} break;
 				
-//			case 11:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ÂÖ×Ó×ßµ½½»²æ¿Ú
+//			case 11:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 //				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 //				if ((L_pos + R_pos) / 2 > 50)
@@ -296,9 +312,9 @@ void TIM1_UP_IRQHandler()
 //				
 //				} break;
        
-            case 12:  //×ó×ªÖ±½Ç
+            case 12:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
                 stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 				if (stage_count > 10)
 				{
 						set_L_pwm(-MTurn(Yaw,179));
@@ -314,7 +330,7 @@ void TIM1_UP_IRQHandler()
 					
 				} break;
 				
-		    case 13:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ´«¸ÐÆ÷¼ì²âµ½½»²æ¿Ú 
+		    case 13:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 				
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
@@ -323,7 +339,7 @@ void TIM1_UP_IRQHandler()
 					L_pos = R_pos = 0;
 					stage = 14;
 				}break;
-			case 14:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ÂÖ×Ó×ßµ½½»²æ¿Ú
+			case 14:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		        set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 250)
@@ -333,9 +349,9 @@ void TIM1_UP_IRQHandler()
 					stage = 15;
 				} break;
 				
-			case 15: //ÓÒ×ªÖ±½Ç
+			case 15: //ï¿½ï¿½×ªÖ±ï¿½ï¿½
 				 stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 				if (stage_count > 10)
 				{
 						set_L_pwm(-MTurn(Yaw,90));
@@ -350,7 +366,7 @@ void TIM1_UP_IRQHandler()
 					stage = 16;
 				} break;
 				
-			case 16: //¸ÉÏßÖ±ÐÐ Ö±µ½ ´«¸ÐÆ÷¼ì²âµ½½»²æ¿Ú
+			case 16: //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 500&& pos == 100)
@@ -360,7 +376,7 @@ void TIM1_UP_IRQHandler()
 					stage = 18;
 				}break;
 				
-			case 17:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ÂÖ×Ó×ßµ½½»²æ¿Ú
+			case 17:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		        set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 				if ((L_pos + R_pos) / 2 > 100)
@@ -370,9 +386,9 @@ void TIM1_UP_IRQHandler()
 					stage = 18;
 				} break;	
 //			
-     		 case 18:  //×ó×ªÖ±½Ç
+     		 case 18:  //ï¿½ï¿½×ªÖ±ï¿½ï¿½
                stage_count++;
-				if (stage_count == 10) L_pos = R_pos = 0;  //µÈ´ý0.1sÔÙ¿ªÊ¼×ªÏò
+				if (stage_count == 10) L_pos = R_pos = 0;  //ï¿½È´ï¿½0.1sï¿½Ù¿ï¿½Ê¼×ªï¿½ï¿½
 				if (stage_count > 10)
 				{
 						set_L_pwm(-MTurn(Yaw,175));
@@ -388,7 +404,7 @@ void TIM1_UP_IRQHandler()
 					
 				} break;	
              
-               case 19:  //¸ÉÏßÖ±ÐÐ Ö±µ½ ´«¸ÐÆ÷¼ì²âµ½ÖÕµã
+               case 19:  //ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ½ï¿½Õµï¿½
 				set_L_pwm(Velocity_L(L_vel, base_vel - xunji_different_vel));
 				set_R_pwm(Velocity_R(R_vel, base_vel + xunji_different_vel));
 			
@@ -399,15 +415,15 @@ void TIM1_UP_IRQHandler()
 					brake();
 				} break;	
                
-			   case 20:  //Í£ÏÂ
+			   case 20:  //Í£ï¿½ï¿½
 	
 					L_pos = R_pos = 0;
 					brake();
 					stage = 21;
 				     break;
 			     case 21: 
-			     Speak(); //·äÃùÆ÷ÏìÈýÉù
-                 stage = 22;//´ý»ú
+			     Speak(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                 stage = 22;//ï¿½ï¿½ï¿½ï¿½
 				 break; 	
 			}
 //			
