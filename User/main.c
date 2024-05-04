@@ -111,15 +111,15 @@ int turn(int routate) {
 	set_L_pwm(-MTurn(currentYaw,finalYaw));
 	set_R_pwm(MTurn(currentYaw,finalYaw));
 	
-	if (abs(MTurn(currentYaw,finalYaw)) <= 10000) {
+	if (abs(MTurn(currentYaw,finalYaw))  <= 5000) {
    if(MTurn(currentYaw,finalYaw) > 0)
    {
-      set_L_pwm(Velocity_L(L_vel,-base_vel));
-	  set_R_pwm(Velocity_R(R_vel, base_vel));	
+      set_L_pwm(Velocity_L(L_vel,-5));
+	  set_R_pwm(Velocity_R(R_vel, 5));	
    }
    else {
-      set_L_pwm(Velocity_L(L_vel, base_vel));
-	  set_R_pwm(Velocity_R(R_vel, -base_vel));
+      set_L_pwm(Velocity_L(L_vel, 5));
+	  set_R_pwm(Velocity_R(R_vel, -5 ));
 
    }
 
